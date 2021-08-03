@@ -1,0 +1,12 @@
+require('dotenv').config({path:"./config/.env"})
+const express = require('express')
+const mongoose = require('mongoose')
+const router = require('./routes/userRoutes')
+const InitialAdmin = require('./config/initialAdmin')
+require('./db/db_connect')
+const PORT = 3000 || process.env.PORT
+const app = express()
+app.use(express.json())
+app.use(router)
+InitialAdmin()
+app.listen(PORT,()=>console.log("server is up at "+PORT))
