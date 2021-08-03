@@ -35,7 +35,10 @@ router.patch("/updateUser", auth , async (req , res)=>{
 
         try {
             updates.forEach((update)=>req.user[update] = req.body[update])
-            req.user.initialSetup?null: req.user.initialSetup = true
+
+            if(req.user.initialSetup === false){
+                req.user.initialSetup = true
+            }
             await req.user.save()
             res.send("Information Updated, You can get the information about facilities you can use further, In Login route")
     } catch (error) {
@@ -49,21 +52,96 @@ router.post("/createUser/:type", auth, async (req , res)=>{
 
     if(req.user.UserType === 'cashier'){
         res.send("You are Not Authorized to use this feature")
+
     }else if(req.user.UserType === 'admin'){
+        if(req.user.initialSetup === false){
+            flags("Please update your password before using this feature", undefined, req , res)
+        }
+
         if(type === "cashier"){
             createCashier(username , email)
         }else{
            flags(undefined , 404 , req , res)
         }
+
     }else if(req.user.UserType === 'superadmin'){
+
+        if(req.user.initialSetup === false){
+            flags("Please update your password before using this feature", undefined, req , res)
+        }
         if(type === "cashier"){
             createCashier(username, email)
         }else if(type === "admin"){
             createAdmin(username, email)
         }
+
     }
 
 })
+
+ router.post('/deleteUser', auth , async (req , res)=>{
+     const {employeeId} = req.body
+     try {
+         const agent = await User.findOne({employeeId:employeeId})
+
+         if(req.user.UserType === "admin"){
+
+            if(agent.UserType === "cashier"){
+                deleteEmployee(employeeId)
+            }
+        }
+
+        if(req.user.UserType === "cashier"){
+            flags("Access denied", undefined , req , res)
+        }
+
+        if(req.user.UserType === "superadmin"){
+
+            if(agent.UserType === "cashier"){
+                deleteEmployee(employeeId)
+            }
+            if(agent.UserType === "admin"){
+                deleteEmployee(employeeId)
+            }
+        }
+
+     } catch (error) {
+         flags(error, undefined, req, res)
+     }
+        
+
+ })
+ router.get('/listEmployees' , auth, async (req, res) =>{
+
+ })
+
+router.post("/generateInvoice", auth, async (req, res) =>{
+
+})
+
+router.get("/sendEmail/:invoiceNumber", auth, async (req, res)=>{
+
+})
+
+router.get("/listRevenue?filter" , auth , async (req , res)=>{
+
+})
+
+router.get('/listInvoices', auth, async (req, res) =>{
+
+})
+
+router.get('/invoice/:invoiceId' , auth , async (req, res)=>{
+    
+})
+ const deleteEmployee = async (employeeId) =>{
+    try {
+        await User.findOneAndRemove({employeeId:employeeId})
+        res.send("Employee Deleted")
+    } catch (error) {
+        flags(error, undefined, req, res)
+    }
+ }
 
 const createAdmin = async (username, email) =>{
     try {

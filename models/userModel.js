@@ -4,8 +4,16 @@ const mongoose = require('mongoose')
 const Validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const shortid = require('shortid')
 
 const userSchema = new mongoose.Schema({
+    employeeId:{
+        type:String,
+        default:shortid.generate(),
+        require:true,
+        unique:true,
+        trin:true
+    },
     username:{
         type:String,
         require:true,
