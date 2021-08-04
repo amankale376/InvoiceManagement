@@ -112,28 +112,20 @@ router.post("/createUser/:type", auth, async (req , res)=>{
 
  })
  router.get('/listEmployees' , auth, async (req, res) =>{
-
+     if( req.user.UserType === "cashier"){
+        flags('access denied', undefined, req, res)
+     }
+     try {
+         
+     const users = await User.find({}).select('employeeId', 'username', 'email', 'Usertype')
+     res.send(users)
+     } catch (error) {
+         flags(error , undefined, req, res)
+     }
  })
 
-router.post("/generateInvoice", auth, async (req, res) =>{
 
-})
 
-router.get("/sendEmail/:invoiceNumber", auth, async (req, res)=>{
-
-})
-
-router.get("/listRevenue?filter" , auth , async (req , res)=>{
-
-})
-
-router.get('/listInvoices', auth, async (req, res) =>{
-
-})
-
-router.get('/invoice/:invoiceId' , auth , async (req, res)=>{
-    
-})
  const deleteEmployee = async (employeeId) =>{
     try {
         await User.findOneAndRemove({employeeId:employeeId})
@@ -145,13 +137,13 @@ router.get('/invoice/:invoiceId' , auth , async (req, res)=>{
 
 const createAdmin = async (username, email) =>{
     try {
-        const newAdmin = {
+        const newAdmin = new User({
             username:username, 
             email:email , 
             password:generatePassword(12, false),
             initialSetup:false,
             UserType:"cashier"
-        }
+        })
         const user = await newAdmin.save()
         return user
     } catch (error) {
@@ -162,13 +154,13 @@ const createAdmin = async (username, email) =>{
 
 const createCashier = async (username, email) =>{
     try {
-        const newCashier = {
+        const newCashier = new User({
             username:username, 
             email:email , 
             password:generatePassword(12, false),
             initialSetup:false,
             UserType:"cashier"
-        }
+        })
         const user = await newCashier.save()
         return user
     } catch (error) {

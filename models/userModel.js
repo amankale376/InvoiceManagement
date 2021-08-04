@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
         default:shortid.generate(),
         require:true,
         unique:true,
-        trin:true
+        trim:true
     },
     username:{
         type:String,
@@ -63,6 +63,11 @@ const userSchema = new mongoose.Schema({
     timestamps:true
 }
 )
+userSchema.virtual('invoices',{
+    ref:'Invoice',
+    localField:'employeeId',
+    foreignField:'cashier'
+})
 
 userSchema.statics.findByCredentials = async (username, password)=>{
     const user = await User.findOne({username})
@@ -87,7 +92,7 @@ userSchema.pre('save', async function (next){
     
 userSchema.methods.generateAuthToken = async function(){
     const user = this
-     user.token = jwt.sign({_id:user._id.toString()},process.env.USER_SECRET)
+     user.token = jwt.sign({_id:user._id},process.env.USER_SECRET)
     await user.save()
     return user.token
 }
