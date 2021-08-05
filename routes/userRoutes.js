@@ -49,7 +49,9 @@ router.patch("/updateUser", auth , async (req , res)=>{
 router.post("/createUser/:type", auth, async (req , res)=>{
     const type = req.params.type
     const {username , email} = req.body 
-
+    if(type === 'superadmin'){
+        flags( undefined, 403 , req , res)
+    }
     if(req.user.UserType === 'cashier'){
         res.send("You are Not Authorized to use this feature")
 
@@ -111,6 +113,17 @@ router.post("/createUser/:type", auth, async (req , res)=>{
         
 
  })
+
+ router.post('/userLogout', auth, async(req,res)=>{
+     try{
+    req.user.token = ""
+        await req.user.save()
+        res.send()
+    } catch (error) {
+        res.status(500).send()
+    }
+})
+
  router.get('/listEmployees' , auth, async (req, res) =>{
      if( req.user.UserType === "cashier"){
         flags('access denied', undefined, req, res)

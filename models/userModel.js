@@ -60,9 +60,17 @@ const userSchema = new mongoose.Schema({
     
 },
 {
-    timestamps:true
+    timestamps:true,
+
 }
 )
+userSchema.methods.toJSON = function (){
+    const user = this
+    const userObject = user.toObject()
+    delete userObject.password
+    return userObject
+    }
+
 userSchema.virtual('invoices',{
     ref:'Invoice',
     localField:'employeeId',

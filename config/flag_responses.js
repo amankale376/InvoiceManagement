@@ -7,11 +7,11 @@ res.status(400).send(custom)
 if(code){
 switch (code){
     case 401:{
-       res.status(401).send('Authorization Failed')
+        res.status(401).send('Authorization Failed')
         break;
-    }
+    } 
     case 403:{
-        res.status(403).send('Authorization required')
+        res.status(403).send('Forbidden')
         break;
     }
     case 404:{

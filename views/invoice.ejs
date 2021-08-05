@@ -1,0 +1,41 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>DemoPdf</title>
+</head>
+<body>
+    <div>
+        <div style="margin-left:40%;font-size:small;">
+                
+        </div>
+     <P style="margin:0px 15px 0px 15px;font-family:Times New Roman;font-weight:lighter;font-size:medium;"><%= data%></P>
+     <table style="width:100%; border: 1px solid">
+        <tr>
+          <th><%= data.name%></th>
+          <th><%= data.email%></th>
+          <th>Attender Id: <%= data.cashier%></th>
+          <th>All items</th>
+          <th>price</th>
+          <th>quantity</th>
+          <th>Total Tax: <%= data.tax%></th>
+          <th>Total Amount: <%= data.totalAmount%></th>
+        </tr>
+            <% data.items.forEach(element => {
+                 <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td><%= element.item %></td>
+          <td><%= element.price %></td>
+          <td><%= element.quantity %></td>
+          <td></td>
+          <td></td>
+        </tr>
+            }); %>
+      </table>
+    </div>
+</body>
+</html>

@@ -13,7 +13,7 @@ const auth = async (req, res , next) =>{
         !user?flags('Wrong Token!', undefined, req, res):null
          req.token = token
          req.user = user
-         console.log(req.user)
+         console.log("Auth working")
         next()
     } catch (error) {
       flags(error, undefined , req ,res)
