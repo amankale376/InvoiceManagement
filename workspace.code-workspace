@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "..\\..\\NEST JS"
+		},
+		{
+			"path": ".."
+		},
+		{
+			"path": "..\\..\\MERN"
+		},
+		{
+			"path": "..\\course\\weather-app"
+		},
+		{
+			"path": "..\\..\\weatherApp-main"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "NEST JS",
+		"git.ignoreLimitWarning": true
+	}
+}

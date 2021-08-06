@@ -17,7 +17,6 @@ try {
       }else{
          res.send({
              token:token,
-
              message:'You can use this token with your credentials to access further allowed functionalities'
          })
       }
@@ -40,28 +39,28 @@ router.patch("/updateUser", auth , async (req , res)=>{
                 req.user.initialSetup = true
             }
             await req.user.save()
-            res.send("Information Updated, You can get the information about facilities you can use further, In Login route")
+            res.send({message:'Information Updated, You can continue further.'})
     } catch (error) {
         flags(error, undefined, req, res)
     }
 })
 
 router.post("/createUser/:type", auth, async (req , res)=>{
-    const type = req.params.type
-    const {username , email} = req.body 
+    const type = ((req.params.type).trim()).toLowerCase()
+
     if(type === 'superadmin'){
         flags( undefined, 403 , req , res)
     }
+    
     if(req.user.UserType === 'cashier'){
-        res.send("You are Not Authorized to use this feature")
+        flags( undefined, 401 , req , res)
 
     }else if(req.user.UserType === 'admin'){
         if(req.user.initialSetup === false){
-            flags("Please update your password before using this feature", undefined, req , res)
+            flags({message:"Please update your password before using this feature"}, undefined, req , res)
         }
-
         if(type === "cashier"){
-            createCashier(username , email)
+            createCashier(req.body.username , req.body.email, req ,res)
         }else{
            flags(undefined , 404 , req , res)
         }
@@ -69,12 +68,12 @@ router.post("/createUser/:type", auth, async (req , res)=>{
     }else if(req.user.UserType === 'superadmin'){
 
         if(req.user.initialSetup === false){
-            flags("Please update your password before using this feature", undefined, req , res)
+            flags({message:"Please update your password before using this feature"}, undefined, req , res)
         }
         if(type === "cashier"){
-            createCashier(username, email)
+            createCashier(req.body.username , req.body.email, req ,res)
         }else if(type === "admin"){
-            createAdmin(username, email)
+            createAdmin(req.body.username , req.body.email, req ,res)
         }
 
     }
@@ -118,15 +117,15 @@ router.post("/createUser/:type", auth, async (req , res)=>{
      try{
     req.user.token = ""
         await req.user.save()
-        res.send()
+        res.send({message:'You are Successfully logged out'})
     } catch (error) {
-        res.status(500).send()
+        flags(error , undefined , req, res)
     }
 })
 
  router.get('/listEmployees' , auth, async (req, res) =>{
      if( req.user.UserType === "cashier"){
-        flags('access denied', undefined, req, res)
+        flags(undefined, 401 , req, res)
      }
      try {
          
@@ -142,7 +141,7 @@ router.post("/createUser/:type", auth, async (req , res)=>{
  const deleteEmployee = async (employeeId) =>{
     try {
         await User.findOneAndRemove({employeeId:employeeId})
-        res.send("Employee Deleted")
+        res.send({message:"User Deleted Successfully"})
     } catch (error) {
         flags(error, undefined, req, res)
     }
@@ -158,14 +157,16 @@ const createAdmin = async (username, email) =>{
             UserType:"cashier"
         })
         const user = await newAdmin.save()
-        return user
+        res.send({username:username,
+            email:email,
+            message:'New Admin is created!'}) 
     } catch (error) {
         flags(error, undefined , req, res)
     }
 
 }
 
-const createCashier = async (username, email) =>{
+const createCashier = async (username, email, req ,res ) =>{
     try {
         const newCashier = new User({
             username:username, 
@@ -175,7 +176,9 @@ const createCashier = async (username, email) =>{
             UserType:"cashier"
         })
         const user = await newCashier.save()
-        return user
+       res.send({username:username,
+        email:email,
+        message:'New Cashier is created!'})
     } catch (error) {
         flags(error, undefined , req, res)
     }

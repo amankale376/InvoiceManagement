@@ -9,8 +9,8 @@ const InitialAdmin = async () =>{
      try {
         const admin = {
             employeeId:shortid.generate(),
-            username:'SuperAdmin',
-            email:'admin@gmail.com',
+            username:process.env.USER_NAME,
+            email:process.env.EMAIL,
             password:process.env.SUPER_ADMIN_INITIAL_PASS,
             UserType:'superadmin'
         }

@@ -1,6 +1,5 @@
 require('dotenv').config({path:"./config/.env"})
 const express = require('express')
-const mongoose = require('mongoose')
 const router = require('./routes/userRoutes')
 const invoiceRouter = require('./routes/invoiceRoutes')
 const InitialAdmin = require('./config/initialAdmin')
