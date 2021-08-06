@@ -62,6 +62,16 @@ try {
             invoicesIterate(invoices, res)
             break
         }
+        case 'yesterday':{
+            const invoices = await Invoice.find({"createdAt":{"$gte":moment().subtract(1, 'days').calendar(), "$lte":moment().startOf('day')}} , ' tax , createdAt , totalAmount ')
+            invoicesIterate(invoices, res)
+            break
+        }
+        case 'week':{
+            const invoices = await Invoice.find({"createdAt":{"$gte":moment().subtract(6, 'days').calendar(), "$lte":moment().endOf('day')}} , ' tax , createdAt , totalAmount ')
+            invoicesIterate(invoices, res)
+            break 
+        }
         case 'month':{
             const invoices = await Invoice.find({"createdAt":{"$gte":moment().subtract(30, 'days').calendar()}} , ' tax , createdAt , totalAmount ')
             invoicesIterate(invoices, res)
@@ -93,6 +103,19 @@ const invoicesIterate = (invoices, res)=>{
 })
 }
 
+
+invoiceRouter.delete('/deleteInvoice/:id', auth , async (req , res)=>{
+    try {
+        if(req.user.UserType === 'cashier'){
+            flags(undefined, 403, req , res)
+        }
+        await Invoice.deleteOne({invoiceId:req.params.id})
+        res.send({message:"Invoice with "+req.params.id+" id deleted Successfully"})
+    } catch (error) {
+        flags(error, undefined , req , res)
+    }
+})
+
 invoiceRouter.get('/listInvoices', auth, async (req, res) =>{
 
     if(req.user.UserType === 'cashier'){
@@ -122,7 +145,7 @@ invoiceRouter.get('/invoice/:invoiceId' , auth , async (req, res)=>{
 
     if(req.user.UserType === "cashier")
     {
-        const invoice = invoiceFind(req.params.invoiceId)
+        const invoice = await Invoice.findOne({invoiceId:req.params.invoiceId}) 
     if(req.user.employeeId === invoice.cashier){
         res.send(invoice)
     }else{
@@ -132,7 +155,8 @@ invoiceRouter.get('/invoice/:invoiceId' , auth , async (req, res)=>{
     }
 
     if(req.user.UserType === 'admin' || req.user.UserType === 'superadmin'){
-        const invoice = invoiceFind(req.params.invoiceId)
+        const invoice = await Invoice.findOne({invoiceId:req.params.invoiceId}) 
+        console.log(invoice)
         res.send(invoice)
     }
     
@@ -142,8 +166,5 @@ invoiceRouter.get('/invoice/:invoiceId' , auth , async (req, res)=>{
 
 })
 
-const invoiceFind = async (invoiceId) =>{
-    return await Invoice.findOne({invoiceId:invoiceId}) 
-}
 
 module.exports = invoiceRouter

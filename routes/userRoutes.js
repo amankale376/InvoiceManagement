@@ -29,6 +29,7 @@ router.patch("/updateUser", auth , async (req , res)=>{
   
         const updates = Object.keys(req.body)
         const allowedUpdates =['username', 'email' , 'password']
+        
         const isValidOperation = updates.every((update)=>allowedUpdates.includes(update))
         !isValidOperation? flags(undefined, 404, req, res):null
 
@@ -51,7 +52,7 @@ router.post("/createUser/:type", auth, async (req , res)=>{
     if(type === 'superadmin'){
         flags( undefined, 403 , req , res)
     }
-    
+
     if(req.user.UserType === 'cashier'){
         flags( undefined, 401 , req , res)
 
@@ -80,29 +81,29 @@ router.post("/createUser/:type", auth, async (req , res)=>{
 
 })
 
- router.post('/deleteUser', auth , async (req , res)=>{
-     const {employeeId} = req.body
+ router.delete('/deleteUser/:employeeId', auth , async (req , res)=>{
      try {
-         const agent = await User.findOne({employeeId:employeeId})
+         const agent = await User.findOne({employeeId:req.params.employeeId})
+            !agent ? flags(undefined, 404, req, res): null
 
          if(req.user.UserType === "admin"){
 
             if(agent.UserType === "cashier"){
-                deleteEmployee(employeeId)
+                deleteEmployee(agent.employeeId, req, res)
             }
         }
 
         if(req.user.UserType === "cashier"){
-            flags("Access denied", undefined , req , res)
+            flags(undefined, 403 , req , res)
         }
 
         if(req.user.UserType === "superadmin"){
 
             if(agent.UserType === "cashier"){
-                deleteEmployee(employeeId)
+                deleteEmployee(agent.employeeId, req, res)
             }
             if(agent.UserType === "admin"){
-                deleteEmployee(employeeId)
+                deleteEmployee(agent.employeeId, req, res)
             }
         }
 
@@ -113,7 +114,7 @@ router.post("/createUser/:type", auth, async (req , res)=>{
 
  })
 
- router.post('/userLogout', auth, async(req,res)=>{
+ router.get('/logout', auth, async(req,res)=>{
      try{
     req.user.token = ""
         await req.user.save()
@@ -125,11 +126,10 @@ router.post("/createUser/:type", auth, async (req , res)=>{
 
  router.get('/listEmployees' , auth, async (req, res) =>{
      if( req.user.UserType === "cashier"){
-        flags(undefined, 401 , req, res)
+        flags(undefined, 403 , req, res)
      }
      try {
-         
-     const users = await User.find({}).select('employeeId', 'username', 'email', 'Usertype')
+     const users = await User.find({},' employeeId , username , email , UserType , -_id ')
      res.send(users)
      } catch (error) {
          flags(error , undefined, req, res)
@@ -138,9 +138,9 @@ router.post("/createUser/:type", auth, async (req , res)=>{
 
 
 
- const deleteEmployee = async (employeeId) =>{
+ const deleteEmployee = async (employeeId, req, res) =>{
     try {
-        await User.findOneAndRemove({employeeId:employeeId})
+        await User.deleteOne({employeeId:employeeId})
         res.send({message:"User Deleted Successfully"})
     } catch (error) {
         flags(error, undefined, req, res)

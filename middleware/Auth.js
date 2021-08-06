@@ -16,7 +16,7 @@ const auth = async (req, res , next) =>{
          console.log("Auth working")
         next()
     } catch (error) {
-      flags(error, undefined , req ,res)
+      flags(undefined, 401 , req ,res)
     }
 }
 module.exports = auth
